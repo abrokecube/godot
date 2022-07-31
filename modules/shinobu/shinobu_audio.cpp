@@ -98,7 +98,8 @@ SH_RESULT ShinobuAudio::initialize(ma_backend forced_backend) {
     device_config.dataCallback = ma_data_callback;
     device_config.playback.format = ma_format_f32;
     device_config.playback.channels = 2;
-    device_config.performanceProfile = ma_performance_profile_low_latency;
+    device_config.performanceProfile = ma_performance_profile_conservative;
+    device_config.noClip = true;
     if (buffer_size > 0) {
         device_config.periodSizeInMilliseconds = buffer_size;
     }
