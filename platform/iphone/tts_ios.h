@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  emws_server.h                                                        */
+/*  tts_ios.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,37 +28,36 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EMWS_SERVER_H
-#define EMWS_SERVER_H
+#ifndef TTS_IOS_H
+#define TTS_IOS_H
 
-#ifdef JAVASCRIPT_ENABLED
-
-#include "core/reference.h"
-#include "emws_peer.h"
-#include "websocket_server.h"
-
-class EMWSServer : public WebSocketServer {
-	GDCIIMPL(EMWSServer, WebSocketServer);
-
-public:
-	Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets);
-	void set_extra_headers(const Vector<String> &p_headers);
-	Error listen(int p_port, Vector<String> p_protocols = Vector<String>(), bool gd_mp_api = false);
-	void stop();
-	bool is_listening() const;
-	bool has_peer(int p_id) const;
-	Ref<WebSocketPeer> get_peer(int p_id) const;
-	IP_Address get_peer_address(int p_peer_id) const;
-	int get_peer_port(int p_peer_id) const;
-	void disconnect_peer(int p_peer_id, int p_code = 1000, String p_reason = "");
-	int get_max_packet_size() const;
-	virtual void poll();
-	virtual PoolVector<String> get_protocols() const;
-
-	EMWSServer();
-	~EMWSServer();
-};
-
+#if __has_include(<AVFAudio/AVSpeechSynthesis.h>)
+#import <AVFAudio/AVSpeechSynthesis.h>
+#else
+#import <AVFoundation/AVFoundation.h>
 #endif
 
-#endif // EMWS_SERVER_H
+#include "core/array.h"
+#include "core/list.h"
+#include "core/map.h"
+#include "core/os/os.h"
+#include "core/ustring.h"
+
+@interface TTS_IOS : NSObject <AVSpeechSynthesizerDelegate> {
+	bool speaking;
+	Map<id, int> ids;
+
+	AVSpeechSynthesizer *av_synth;
+	List<OS::TTSUtterance> queue;
+}
+
+- (void)pauseSpeaking;
+- (void)resumeSpeaking;
+- (void)stopSpeaking;
+- (bool)isSpeaking;
+- (bool)isPaused;
+- (void)speak:(const String &)text voice:(const String &)voice volume:(int)volume pitch:(float)pitch rate:(float)rate utterance_id:(int)utterance_id interrupt:(bool)interrupt;
+- (Array)getVoices;
+@end
+
+#endif // TTS_IOS_H
